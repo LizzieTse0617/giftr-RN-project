@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList ,TouchableOpacity} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons'; // Import the Ionicons component
 
 export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
   const [peopleData, setPeopleData] = useState([]);
+  const [error, setError] = useState(null); // Add a state for error
 
   useEffect(() => {
     // Function to retrieve people data from AsyncStorage
@@ -24,25 +26,57 @@ export default function PeopleScreen({ route }) {
         }
       } catch (error) {
         console.error('Error retrieving people data:', error);
+        setError('Error retrieving people data: ' + error.message); // Set the error state
       }
     };
 
     getPeopleData(); // Call the function to retrieve and set the data
+    console.log(peopleData)
   }, [route.params]);
+
+
+  const handleDelete = async (personId) => {
+    // Find the index of the person to delete
+    const indexToDelete = peopleData.findIndex((person) => person.id === personId);
+
+    if (indexToDelete !== -1) {
+      // Create a copy of the peopleData array
+      const updatedPeopleData = [...peopleData];
+      // Remove the person from the array
+      updatedPeopleData.splice(indexToDelete, 1);
+
+      // Update AsyncStorage with the modified array
+      try {
+        await AsyncStorage.setItem('peopleData', JSON.stringify(updatedPeopleData));
+        console.log('Person deleted successfully');
+        setPeopleData(updatedPeopleData); // Update the state to reflect the deletion
+      } catch (error) {
+        console.error('Error deleting person data:', error);
+        setError('Error deleting person data: ' + error.message);
+      }
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.title}>List of People</Text>
-      <FlatList
-        data={peopleData}
-        renderItem={({ item }) => (
-          <View style={styles.personContainer}>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text>{item.dob}</Text>
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-      />
+      {error ? (
+        <Text style={styles.error}>{error}</Text>
+      ) : (
+        <FlatList
+          data={peopleData}
+          renderItem={({ item }) => (
+            <View style={styles.personContainer}>
+              <Text style={styles.name}>{item.name}</Text>
+              <Text>{item.dob}</Text>
+              <TouchableOpacity onPress={() => handleDelete(item.id)}>
+                <Icon name="ios-trash" size={30} color="red" />
+              </TouchableOpacity>
+            </View>
+          )}
+          keyExtractor={(item) => item.id}
+        />
+      )}
     </View>
   );
 }
@@ -62,8 +96,14 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: 'white',
     padding: 15,
+    
   },
   name: {
     fontSize: 20,
+
+  },
+  error: {
+    fontSize: 16,
+    color: 'red',
   },
 });
