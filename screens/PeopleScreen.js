@@ -7,16 +7,27 @@ export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
   const [peopleData, setPeopleData] = useState([]);
 
-  // Retrieve updated data when the route parameter changes
   useEffect(() => {
-    if (route.params && route.params.peopleData) {
-      // Sort peopleData by their dob in ascending order
-      const sortedPeopleData = [...route.params.peopleData].sort((a, b) => {
-        // Assuming dob is in the format "YYYY-MM-DD"
-        return a.dob.localeCompare(b.dob);
-      });
-      setPeopleData(sortedPeopleData);
-    }
+    // Function to retrieve people data from AsyncStorage
+    const getPeopleData = async () => {
+      try {
+        const storedData = await AsyncStorage.getItem('peopleData');
+        if (storedData !== null) {
+          // Parse the stored data (it should be in JSON format)
+          const parsedData = JSON.parse(storedData);
+          // Sort the data by 'dob' in ascending order
+          const sortedPeopleData = parsedData.sort((a, b) => {
+            // Assuming 'dob' is in the format "YYYY-MM-DD"
+            return a.dob.localeCompare(b.dob);
+          });
+          setPeopleData(sortedPeopleData);
+        }
+      } catch (error) {
+        console.error('Error retrieving people data:', error);
+      }
+    };
+
+    getPeopleData(); // Call the function to retrieve and set the data
   }, [route.params]);
 
   return (
