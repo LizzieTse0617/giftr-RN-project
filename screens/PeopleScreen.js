@@ -3,11 +3,16 @@ import { StyleSheet, View, Text, FlatList ,TouchableOpacity} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import the Ionicons component
+import ModalComponent from '../components/ModalComponent';
 
 export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
   const [peopleData, setPeopleData] = useState([]);
-  const [error, setError] = useState(null); // Add a state for error
+  const [error, setError] = useState(null);
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [personIdToDelete, setPersonIdToDelete] = useState(null);
+  const [personNameToDelete, setPersonNameToDelete] = useState('');
+
 
   useEffect(() => {
     // Function to retrieve people data from AsyncStorage
@@ -34,6 +39,24 @@ export default function PeopleScreen({ route }) {
     console.log(peopleData)
   }, [route.params]);
 
+  const openModal = (personId, personName) => {
+    setPersonIdToDelete(personId);
+    setPersonNameToDelete(personName);
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setPersonIdToDelete(null);
+    setPersonNameToDelete('');
+    setModalVisible(false);
+  };
+
+  const confirmDelete = () => {
+    if (personIdToDelete !== null) {
+      handleDelete(personIdToDelete);
+      closeModal();
+    }
+  };
 
   const handleDelete = async (personId) => {
     // Find the index of the person to delete
@@ -62,21 +85,32 @@ export default function PeopleScreen({ route }) {
       <Text style={styles.title}>List of People</Text>
       {error ? (
         <Text style={styles.error}>{error}</Text>
-      ) : (
+      ) :peopleData.length === 0 ? (
+      <Text style={styles.displayMessage}>No people saved yet</Text>
+    ) :
+      
+      (
         <FlatList
-          data={peopleData}
-          renderItem={({ item }) => (
-            <View style={styles.personContainer}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text>{item.dob}</Text>
-              <TouchableOpacity onPress={() => handleDelete(item.id)}>
-                <Icon name="ios-trash" size={30} color="red" />
-              </TouchableOpacity>
-            </View>
-          )}
-          keyExtractor={(item) => item.id}
-        />
+        data={peopleData}
+        renderItem={({ item }) => (
+          <View style={styles.personContainer}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text>{item.dob}</Text>
+            <TouchableOpacity onPress={() => openModal(item.id, item.name)}>
+              <Icon name="ios-trash" size={30} color="red" />
+            </TouchableOpacity>
+          </View>
+        )}
+        keyExtractor={(item) => item.id}
+      />
       )}
+<ModalComponent
+        isVisible={isModalVisible}
+        title={`${personNameToDelete}?`}
+        onConfirm={confirmDelete}
+        onCancel={closeModal}
+      />
+
     </View>
   );
 }
@@ -84,7 +118,7 @@ export default function PeopleScreen({ route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
+    justifyContent:'flex-start',
     paddingHorizontal: 20,
     width: '100%',
   },
@@ -96,14 +130,16 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: 'white',
     padding: 15,
-    
   },
   name: {
     fontSize: 20,
-
   },
   error: {
     fontSize: 16,
-    color: 'red',
   },
+  displayMessage:{
+    color:'grey',
+    fontSize: 16,
+
+  }
 });

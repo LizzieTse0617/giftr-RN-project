@@ -26,8 +26,6 @@ const retrievePeopleData = async () => {
   }
 };
 
-
-// Update people & validation
 const handleAddPerson = async () => {
   // Validate and add the new person to the list
   if (newPerson.name.trim() && selectedDate) {
@@ -42,7 +40,6 @@ const handleAddPerson = async () => {
     // Retrieve existing people data
     const existingPeopleData = await retrievePeopleData();
 
-    // Add the new person to the array
     existingPeopleData.push(person);
 
     // Save the updated array back to AsyncStorage
@@ -59,27 +56,21 @@ const handleAddPerson = async () => {
     updatePeopleList(person);
     setNewPerson({ name: '', dob: '' });
     console.log(existingPeopleData)
-    setSelectedDate(''); // Reset the selected date
+    setSelectedDate(''); 
   }
 };
 
-
- // Handle cancel button press
  const handleCancel = () => {
-  // Optionally add logic to navigate back without saving
   navigation.goBack();
 };
-
-
 
   return (
     <KeyboardAvoidingView
     style={styles.container}
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'} // Adjust behavior based on platform
-  >
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
     <Text style={styles.title}>Add a person</Text>
+    
     <KeyboardAvoidingView>
-   
       <KeyboardAvoidingView>
         <Text style={styles.text}>Name</Text>
         <TextInput
@@ -139,15 +130,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#333',
   },
-  datePicker:{borderColor:'black',
+  datePicker:{
+    borderColor:'black',
 borderWidth:1,
-
-
 },
-
   buttonContainer: {
     flexDirection: 'column',
   },
-
-
 });
