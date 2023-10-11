@@ -25,6 +25,7 @@ export default function App() {
   };
 
   return (
+
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="People">
@@ -50,10 +51,11 @@ export default function App() {
           />
 
           <Stack.Screen name="AddPeople" component={AddPeopleScreen} options={{ title: 'Add People' }} />
-          <Stack.Screen name="Idea" component={IdeaScreen} options={{ title: 'Idea' }} />
+          <Stack.Screen name="IdeaScreen" component={IdeaScreen} options={{ title: 'Idea' }} />
           <Stack.Screen name="AddIdea" component={AddIdeaScreen} options={{ title: 'Add Idea' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
+
   );
 }

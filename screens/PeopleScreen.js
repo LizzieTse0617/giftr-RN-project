@@ -4,6 +4,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/Ionicons'; // Import the Ionicons component
 import ModalComponent from '../components/ModalComponent';
+import { useNavigation } from '@react-navigation/native';
+import { Swipeable } from 'react-native-gesture-handler';
+import Animated from 'react-native-reanimated';
 
 export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
@@ -12,7 +15,7 @@ export default function PeopleScreen({ route }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [personIdToDelete, setPersonIdToDelete] = useState(null);
   const [personNameToDelete, setPersonNameToDelete] = useState('');
-
+  const navigation = useNavigation();
 
   useEffect(() => {
     // Function to retrieve people data from AsyncStorage
@@ -79,7 +82,12 @@ export default function PeopleScreen({ route }) {
       }
     }
   };
-
+  const navigateToIdeaScreen = (personId, personName) => {
+    navigation.navigate('IdeaScreen', {
+      personId,
+      personName,
+    });
+  };
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.title}>List of People</Text>
@@ -99,10 +107,14 @@ export default function PeopleScreen({ route }) {
             <TouchableOpacity onPress={() => openModal(item.id, item.name)}>
               <Icon name="ios-trash" size={30} color="red" />
             </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigateToIdeaScreen(item.id, item.name)}>
+              <Text>Gift</Text>
+            </TouchableOpacity>
           </View>
         )}
         keyExtractor={(item) => item.id}
       />
+      
       )}
 <ModalComponent
         isVisible={isModalVisible}

@@ -5,6 +5,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
+import * as Crypto from 'expo-crypto';
+
+
 export default function AddPeopleScreen({ route }) {
   const [newPerson, setNewPerson] = useState({ name: '', dob: '' });
   const { updatePeopleList } = route.params;
@@ -26,45 +29,80 @@ const retrievePeopleData = async () => {
   }
 };
 
+
+// Function to generate a unique ID
+const generateUniqueId = async () => {
+  try {
+    // Generate a unique string (e.g., a random UUID-like string)
+    const uniqueString = `${Date.now()}-${Math.random()}`;
+    
+    // Calculate the SHA-256 hash of the unique string
+    const id = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      uniqueString
+    );
+
+ // Create a shortened ID using the first 16 characters of the hash
+ const formattedId = `${id.substring(0, 8)}-${id.substring(8, 12)}-${id.substring(12, 16)}-${id.substring(16, 20)}-${id.substring(20, 32)}`;
+  
+
+    return formattedId;
+  } catch (error) {
+    console.error('Error generating ID:', error);
+    return null;
+  }
+};
+
 const handleAddPerson = async () => {
   // Validate and add the new person to the list
   if (newPerson.name.trim() && selectedDate) {
-    // The selectedDate is in the format "YYYY-MM-DD" from the DatePicker
-    const person = {
-      id: Math.random().toString(),
-      ideas: [],
-      name: newPerson.name,
-      dob: selectedDate, // Use the selectedDate as is
-    };
+    // Generate a unique ID for the new person
+    generateUniqueId().then((id) => {
+      if (id) {
+        const person = {
+          id: id,
+          ideas: [],
+          name: newPerson.name,
+          dob: selectedDate,
+        };
 
-    // Retrieve existing people data
-    const existingPeopleData = await retrievePeopleData();
+        // Retrieve existing people data
+        retrievePeopleData()
+          .then((existingPeopleData) => {
+            existingPeopleData.push(person);
 
-    existingPeopleData.push(person);
-
-    // Save the updated array back to AsyncStorage
-    try {
-      await AsyncStorage.setItem('peopleData', JSON.stringify(existingPeopleData));
-      console.log('Person added successfully');
-    
-      // Pass the updated data as a route parameter
-      navigation.navigate('People', { peopleData: existingPeopleData });
-    } catch (error) {
-      console.error('Error saving person data:', error);
-    }
-
-    updatePeopleList(person);
-    setNewPerson({ name: '', dob: '' });
-    console.log(existingPeopleData)
-    setSelectedDate(''); 
+            // Save the updated array back to AsyncStorage
+            AsyncStorage.setItem('peopleData', JSON.stringify(existingPeopleData))
+              .then(() => {
+                console.log('Person added successfully');
+                navigation.navigate('People', { peopleData: existingPeopleData });
+                updatePeopleList(person);
+                console.log(person)
+                console.log(existingPeopleData)
+                setNewPerson({ name: '', dob: '' });
+                setSelectedDate('');
+              })
+              .catch((error) => {
+                console.error('Error saving person data:', error);
+              });
+          })
+          .catch((error) => {
+            console.error('Error retrieving people data:', error);
+          });
+      } else {
+        console.log('Failed to generate ID.');
+      }
+    });
   }
 };
+
 
  const handleCancel = () => {
   navigation.goBack();
 };
 
   return (
+
     <KeyboardAvoidingView
     style={styles.container}
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
