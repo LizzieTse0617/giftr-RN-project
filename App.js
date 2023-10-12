@@ -51,7 +51,24 @@ export default function App() {
           />
 
           <Stack.Screen name="AddPeople" component={AddPeopleScreen} options={{ title: 'Add People' }} />
-          <Stack.Screen name="IdeaScreen" component={IdeaScreen} options={{ title: 'Idea' }} />
+          <Stack.Screen
+            name="IdeaScreen"
+            component={IdeaScreen}
+            options={({ navigation }) => ({
+              title: 'Idea',
+              headerRight: () => (
+                <TouchableOpacity
+                  onPress={() =>
+                    navigation.navigate('AddIdea', {
+                      // Pass any necessary parameters if needed
+                    })
+                  }
+                >
+                  <Text>Add Idea</Text>
+                </TouchableOpacity>
+              ),
+            })}
+          />
           <Stack.Screen name="AddIdea" component={AddIdeaScreen} options={{ title: 'Add Idea' }} />
         </Stack.Navigator>
       </NavigationContainer>

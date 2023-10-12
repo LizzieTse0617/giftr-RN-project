@@ -108,7 +108,8 @@ export default function PeopleScreen({ route }) {
               <Icon name="ios-trash" size={30} color="red" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigateToIdeaScreen(item.id, item.name)}>
-              <Text>Gift</Text>
+   
+              <Icon name="gift-outline" size={30} color="red" />
             </TouchableOpacity>
           </View>
         )}

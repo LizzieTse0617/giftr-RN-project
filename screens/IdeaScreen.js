@@ -1,8 +1,10 @@
-import { StyleSheet,View,Text } from "react-native";
-import { Pressable } from "react-native";
+import React from 'react';
+import { StyleSheet, View, Text, Button } from 'react-native';
 
 export default function IdeaScreen({route, navigation}){
     const { personId, personName } = route.params;
+
+    
     return (
      <View style={styles.container}>
 

@@ -167,12 +167,11 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     fontSize: 16,
     color: '#333',
+    padding:10
   },
   datePicker:{
     borderColor:'black',
 borderWidth:1,
 },
-  buttonContainer: {
-    flexDirection: 'column',
-  },
+ 
 });
