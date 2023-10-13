@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Button,ScrollView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, ScrollView, KeyboardAvoidingView } from 'react-native';
 import DatePicker from 'react-native-modern-datepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import CustomTextInput from '../components/CustomTextInput';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
 import * as Crypto from 'expo-crypto';
-
-
+import { Text, TextInput, Button } from 'react-native-paper'; // Import components from react-native-paper
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function AddPeopleScreen({ route }) {
+  const insets = useSafeAreaInsets();
   const [newPerson, setNewPerson] = useState({ name: '', dob: '' });
   const { updatePeopleList } = route.params;
   const navigation = useNavigation();
@@ -101,77 +103,86 @@ const handleAddPerson = async () => {
   navigation.goBack();
 };
 
+
   return (
 
-    <KeyboardAvoidingView
-    style={styles.container}
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
     <Text style={styles.title}>Add a person</Text>
-    
-    <KeyboardAvoidingView>
-      <KeyboardAvoidingView>
-        <Text style={styles.text}>Name</Text>
-        <TextInput
-          style={styles.input}
-          value={newPerson.name}
-          onChangeText={(text) => setNewPerson({ ...newPerson, name: text })}
-        />
-      </KeyboardAvoidingView>
-      <KeyboardAvoidingView>
-          <Text style={styles.text}>Date of Birth</Text>
-          <DatePicker
-          style={styles.datePicker}
-            onSelectedChange={(date) => setSelectedDate(date)}
-            selected={selectedDate}
-            mode="calendar"
-            minuteInterval={30}
-          />
-          <Text style={styles.selectDate}>Selected date: {selectedDate}</Text>
-        </KeyboardAvoidingView>
-      </KeyboardAvoidingView>
 
-      <View style={styles.buttonContainer}>
-  <SaveButton title="Save" onPress={handleAddPerson} style={styles.btn} />
-  <CancelButton title="Cancel" onPress={handleCancel} />
-</View>
-    </KeyboardAvoidingView>
+    <Text style={styles.text}>Name</Text>
+    <CustomTextInput
+  value={newPerson.name}
+  onChangeText={(text) => setNewPerson({ ...newPerson, name: text })}
+  placeholder="Enter name"
+/>
+
+
+    <Text style={styles.text}>Date of Birth</Text>
+    <DatePicker
+      style={styles.datePicker}
+      onSelectedChange={(date) => setSelectedDate(date)}
+      selected={selectedDate}
+      mode="calendar"
+      minuteInterval={30}
+      options={{
+        selectedTextColor: '#393939',
+        mainColor: '#FBE6A2',
+        textSecondaryColor: '#7C56FF',
+      }}
+    />
+    <Text style={styles.text}>Selected date (YYYY / MM / DD)</Text>
+    <Text style={styles.selectDate}>{selectedDate}</Text>
+
+    <View style={styles.buttonContainer}>
+      <CancelButton title="Cancel" onPress={handleCancel} />
+      <SaveButton title="Save" onPress={handleAddPerson} style={styles.btn} />
+    </View>
+  </KeyboardAvoidingView>
 
   );
 }
 const styles = StyleSheet.create({
+
   container: {
     flex: 1,
-    paddingTop: 30,
     paddingHorizontal: 20,
-    backgroundColor: 'white',
+    width: '100%',
+    backgroundColor:'#7C56FF',
+    paddingTop:20,
   },
-
   title: {
     fontSize: 25,
-    fontWeight:'bold'
+    fontWeight:700,
+    color:'#FFFFFF'
   },
   text: {
-    paddingTop: 20,
-    fontSize: 16,
-    
+    paddingTop: 10,
+    fontSize: 14,
+    color:'#FFFFFF',
+    paddingBottom:5
+
   },
   selectDate:{
-    paddingTop: 10,
+    padding: 10,
     fontSize: 20,
-    color:'rebeccapurple',
-    fontWeight:'bold'
+    color:'#393939',
+    fontWeight:'bold',
+    backgroundColor:'#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   input: {
     height: 40,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
     fontSize: 16,
-    color: '#333',
-    padding:10
+    borderColor: '#FFFFFF',
+    padding:5,
   },
-  datePicker:{
-    borderColor:'black',
-borderWidth:1,
-},
  
+buttonContainer:{
+  flex: 1,
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
 });

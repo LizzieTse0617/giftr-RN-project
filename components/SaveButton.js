@@ -11,17 +11,20 @@ const SaveButton = ({ title, onPress, style }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: 'green', // Background color for the button
-    borderColor: 'green',   // Border color
+    backgroundColor: '#FBE6A2', 
+    borderColor: '#FBE6A2',   // Border color
     borderWidth: 1,         // Border width
     padding: 10,           // Padding around the button content
     alignItems: 'center',  // Center the content horizontally
     borderRadius: 5,  
-    marginTop:10,
+    flex: 1,
+    margin:10,
+  
   },
   buttonText: {
-    color: 'white',        // Text color
+    color: '#393939',        // Text color
     fontSize: 16,          // Text font size
+    fontWeight:'bold',
   },
 });
 

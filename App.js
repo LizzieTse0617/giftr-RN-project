@@ -1,5 +1,5 @@
 import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createNativeStackNavigator,createStackNavigator } from '@react-navigation/native-stack'
 import PeopleScreen from './screens/PeopleScreen.js';
 import AddPeopleScreen from './screens/AddPeopleScreen.js';
 import IdeaScreen from './screens/IdeaScreen.js';
@@ -7,7 +7,7 @@ import AddIdeaScreen from './screens/AddIdeaScreen.js';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import React, { useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
+import { PaperProvider } from 'react-native-paper';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -25,7 +25,7 @@ export default function App() {
   };
 
   return (
-
+<PaperProvider>
     <SafeAreaProvider>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="People">
@@ -44,7 +44,7 @@ export default function App() {
                     })
                   }
                 >
-                  <Text>Add People</Text>
+                  <Text style={styles.heading}>+ Add People</Text>
                 </TouchableOpacity>
               ),
             })}
@@ -59,12 +59,10 @@ export default function App() {
               headerRight: () => (
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate('AddIdea', {
-                      // Pass any necessary parameters if needed
-                    })
+                    navigation.navigate('AddIdea')
                   }
                 >
-                  <Text>Add Idea</Text>
+                  <Text style={styles.heading}>+ Add Idea</Text>
                 </TouchableOpacity>
               ),
             })}
@@ -73,6 +71,13 @@ export default function App() {
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
-
+    </PaperProvider>
   );
 }
+
+
+const styles = StyleSheet.create({
+  heading: {
+    color:'#7C56FF',
+  },
+})
