@@ -1,41 +1,24 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, CameraType } from 'expo-camera';
-import { View, Text, Image, ScrollView, Pressable } from 'react-native';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { useWindowDimensions } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 
-export default function App() {
-  const screen = useWindowDimensions();
-  const screenWidth = screen.width;
-
-  const [type, setType] = useState(CameraType.back);
-  let camera = useRef();
+export default function CameraComponent({ onPictureTaken }) {
+  const cameraRef = useRef();
   const [hasPermission, setHasPermission] = useState(false);
-  const [img, setImg] = useState(null);
-  const [aspectRatio] = useState(2 / 3); // Aspect ratio of 2:3
 
   useEffect(() => {
+    // Request camera permissions
     Camera.requestCameraPermissionsAsync()
-      .then(permissions => {
+      .then((permissions) => {
         if (permissions.status === 'granted') {
           setHasPermission(true);
-          return Camera.getAvailablePictureSizesAsync();
         } else {
           setHasPermission(false);
         }
       })
-      .then(result => {
-        console.log(result);
-      })
-      .catch(err => console.log(err.message));
+      .catch((err) => console.log(err.message));
   }, []);
-
-  const calculateImageDimensions = () => {
-    const widthPercentage = 0.6; // Between 50% and 70% of screen width
-    const w = screenWidth * widthPercentage;
-    const h = w * aspectRatio;
-    return { width: w, height: h };
-  };
 
   function takePhoto() {
     if (!hasPermission) {
@@ -44,62 +27,50 @@ export default function App() {
     }
 
     const opts = {
-      zoom: 0.2,
       quality: 0.8,
       imageType: 'jpg',
       skipProcessing: false,
     };
 
-    camera
+    cameraRef.current
       .takePictureAsync(opts)
-      .then(pic => {
+      .then((pic) => {
         if (pic) {
-          console.log(pic.uri);
-          console.log(pic.width);
-          console.log(pic.height);
-
-          const { width, height } = calculateImageDimensions();
-          setImg({ uri: pic.uri, width, height });
-        } else {
-          console.log('No photo taken.');
+          onPictureTaken(pic);
         }
       })
-      .catch(err => console.log(err));
+      .catch((err) => console.log(err));
   }
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      <View>
-        <Text style={styles.txt}>Camera view</Text>
-        {hasPermission ? (
-          <>
-            <Text style={styles.txt}>Granted</Text>
-            <Camera type={type} ref={r => (camera = r)}>
-              <Pressable onPress={takePhoto}>
-                <View style={{ backgroundColor: 'black', flex: 1, alignItems: 'center' }}>
-                  <MaterialIcons name="camera-alt" size={50} color="white" />
-                </View>
-              </Pressable>
-            </Camera>
-          </>
-        ) : (
-          <Text style={styles.txt}>No camera for you</Text>
-        )}
-      </View>
-      <View>
-        <Text style={styles.txt}>Image view</Text>
-        {img ? (
-          <Image source={{ uri: img.uri }} style={{ width: img.width, height: img.height }} />
-        ) : (
-          <Text style={styles.txt}>No image currently</Text>
-        )}
-      </View>
-    </ScrollView>
+    <Camera
+      type={CameraType.back}
+      style={{ flex: 1 }}
+      ref={cameraRef}
+    >
+      {hasPermission && (
+        <View style={cameraStyles.buttonContainer}>
+          <Pressable onPress={takePhoto} style={cameraStyles.captureButton}>
+            <MaterialIcons name="camera-alt" size={50} color="white" />
+          </Pressable>
+        </View>
+      )}
+    </Camera>
   );
 }
 
-const styles = {
-  txt: {
-    fontSize: 20,
+const cameraStyles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    position: 'absolute',
+    bottom: 20,
+    left: 0,
+    right: 0,
   },
-};
+  captureButton: {
+    backgroundColor: 'black',
+    padding: 16,
+    borderRadius: 50,
+  },
+});

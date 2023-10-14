@@ -1,58 +1,37 @@
-import React, { useState, useRef } from 'react';
-import { View, Image, StyleSheet, Keyboard, TouchableWithoutFeedback, TouchableOpacity } from 'react-native';
-import { Camera } from 'expo-camera'; // Import the Camera component from expo-camera
+import React, { useState } from 'react';
+import { View, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
 import { Text, TextInput } from 'react-native-paper';
+import CameraComponent from '../components/CameraComponent'; // Import your CameraComponent
 
 export default function AddIdeaScreen({ route, navigation }) {
-  const cameraRef = useRef(null);
   const [capturedImage, setCapturedImage] = useState(null);
 
-  const takePicture = async () => {
-    if (cameraRef.current) {
-      const photo = await cameraRef.current.takePictureAsync();
-      setCapturedImage(photo.uri);
-    }
+  const onPictureTaken = (photo) => {
+    setCapturedImage(photo.uri);
   };
 
-  const saveImage = () => {
-    // You can implement the logic to save or use the captured image here
-    // For example, you can navigate to another screen with the captured image.
-    navigation.navigate('ImagePreviewScreen', { capturedImage });
-  };
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>Add an idea</Text>
         <Text style={styles.text}>Gift</Text>
         <TextInput style={styles.input} />
 
-        <View style={styles.cameraContainer}>
-          {capturedImage ? (
-            <View style={styles.imagePreviewContainer}>
-              <Image source={{ uri: capturedImage }} style={styles.imagePreview} />
-            </View>
-          ) : (
-            <Camera ref={cameraRef} style={styles.camera} />
-          )}
-        </View>
+        {/* Use the CameraComponent */}
+        <CameraComponent onPictureTaken={onPictureTaken} />
+
+        {capturedImage && (
+          <View style={styles.imagePreviewContainer}>
+            <Image source={{ uri: capturedImage }} style={styles.imagePreview} />
+          </View>
+        )}
 
         <View style={styles.buttonContainer}>
-          {capturedImage ? (
-            <CancelButton title="Cancel" onPress={() => setCapturedImage(null)} />
-          ) : (
-            <CancelButton title="Cancel" />
-          )}
-          {capturedImage ? (
-            <TouchableOpacity style={styles.captureButton} onPress={saveImage}>
-              <Text style={styles.captureButtonText}>Save</Text>
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity style={styles.captureButton} onPress={takePicture}>
-              <Text style={styles.captureButtonText}>Capture</Text>
-            </TouchableOpacity>
-          )}
+          <CancelButton title="Cancel" />
+          <SaveButton title="Save" style={styles.btn} />
         </View>
       </View>
     </TouchableWithoutFeedback>
