@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, ScrollView, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, View, KeyboardAvoidingView } from 'react-native';
 import DatePicker from 'react-native-modern-datepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import CustomTextInput from '../components/CustomTextInput';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
 import * as Crypto from 'expo-crypto';
-import { Text, TextInput, Button } from 'react-native-paper'; // Import components from react-native-paper
+import { Text, TextInput} from 'react-native-paper'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function AddPeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
@@ -98,10 +97,11 @@ const handleAddPerson = async () => {
   }
 };
 
-
  const handleCancel = () => {
   navigation.goBack();
 };
+
+
 
 
   return (
@@ -110,7 +110,8 @@ const handleAddPerson = async () => {
     <Text style={styles.title}>Add a person</Text>
 
     <Text style={styles.text}>Name</Text>
-    <CustomTextInput
+    <TextInput
+  style={styles.input}
   value={newPerson.name}
   onChangeText={(text) => setNewPerson({ ...newPerson, name: text })}
   placeholder="Enter name"

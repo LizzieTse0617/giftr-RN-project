@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Camera } from 'expo-camera';
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { IconButton } from 'react-native-paper';
 
 export default function CameraComponent({ onPictureTaken }) {
   const [hasPermission, setHasPermission] = useState(false);
@@ -35,8 +36,26 @@ export default function CameraComponent({ onPictureTaken }) {
         {hasPermission && (
           <View style={{ flex: 1, justifyContent: 'flex-end', alignItems: 'center' }}>
             <TouchableOpacity onPress={takePicture} style={{ alignSelf: 'center', marginBottom: 20 }}>
-              <Text style={{ fontSize: 18, marginBottom: 10, color: 'white' }}>Take Picture</Text>
+             
+
+             <IconButton
+  icon="camera"
+  color="white" 
+  size={35}
+  onPress={takePicture}
+  style={{
+ 
+    backgroundColor: '#7C56FF', 
+    borderRadius: 50, 
+
+  }}
+/>
+
             </TouchableOpacity>
+
+            
+
+
           </View>
         )}
       </Camera>

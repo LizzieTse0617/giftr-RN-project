@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Image, StyleSheet,Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View,Image, StyleSheet,Keyboard, TouchableWithoutFeedback } from 'react-native';
 import CameraComponent from '../components/CameraComponent'; // Import your CameraComponent
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
-
+import { Text, TextInput} from 'react-native-paper'; 
 export default function AddIdeaScreen({ route, navigation }) {
   const [capturedImage, setCapturedImage] = useState(null);
 
@@ -41,28 +41,30 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 30,
     paddingHorizontal: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#393939',
   },
   title: {
     fontSize: 25,
     fontWeight: 'bold',
+    color:'#FFFFFF'
   },
   text: {
     paddingTop: 20,
     fontSize: 16,
+    color:'#FFFFFF'
   },
   input: {
     height: 40,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 5,
+    backgroundColor: '#FFFFFF',
     fontSize: 16,
-    color: '#333',
-    padding: 10,
+    borderColor: '#FFFFFF',
+    padding:5,
   },
   imagePreviewContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+
   },
   imagePreview: {
     width: 200,

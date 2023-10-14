@@ -6,41 +6,38 @@ import Icon from 'react-native-vector-icons/Ionicons'; // Import the Ionicons co
 import ModalComponent from '../components/ModalComponent';
 import { useNavigation } from '@react-navigation/native';
 import { Text, List, Button, Modal, Provider } from 'react-native-paper';
+import { useGlobalState, useGlobalDispatch } from '../components/GlobalContext';
+
 
 export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
-  const [peopleData, setPeopleData] = useState([]);
   const [error, setError] = useState(null);
   const [isModalVisible, setModalVisible] = useState(false);
   const [personIdToDelete, setPersonIdToDelete] = useState(null);
   const [personNameToDelete, setPersonNameToDelete] = useState('');
   const navigation = useNavigation();
 
+  const globalState = useGlobalState();
+  const globalDispatch = useGlobalDispatch();
+  const { people: peopleData } = globalState;
+
+
   useEffect(() => {
-    // Function to retrieve people data from AsyncStorage
     const getPeopleData = async () => {
       try {
         const storedData = await AsyncStorage.getItem('peopleData');
         if (storedData !== null) {
-          // Parse the stored data (it should be in JSON format)
           const parsedData = JSON.parse(storedData);
-          // Sort the data by 'dob' in ascending order
-          const sortedPeopleData = parsedData.sort((a, b) => {
-            // Assuming 'dob' is in the format "YYYY-MM-DD"
-            return a.dob.localeCompare(b.dob);
-          });
-          setPeopleData(sortedPeopleData);
+          globalDispatch({ type: 'SET_PEOPLE', payload: parsedData });
         }
       } catch (error) {
         console.error('Error retrieving people data:', error);
-        setError('Error retrieving people data: ' + error.message); // Set the error state
+        setError('Error retrieving people data: ' + error.message);
       }
     };
 
-    getPeopleData(); // Call the function to retrieve and set the data
-    console.log(peopleData)
-  }, [route.params]);
-
+    getPeopleData();
+  }, []);
   const openModal = (personId, personName) => {
     setPersonIdToDelete(personId);
     setPersonNameToDelete(personName);
@@ -87,6 +84,25 @@ export default function PeopleScreen({ route }) {
       personName,
     });
   };
+
+
+  function formatDate(inputDate) {
+    const dateParts = inputDate.split('/'); 
+    const year = parseInt(dateParts[0], 10);
+    const month = parseInt(dateParts[1], 10);
+    const day = parseInt(dateParts[2], 10);
+  
+    const date = new Date(year, month - 1, day);
+    const monthNames = [
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const formattedMonth = monthNames[date.getMonth()];
+    const formattedDate = day + ' ' + formattedMonth;
+    return formattedDate;
+  }
+
+
   return (
     <Provider>
       <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -103,7 +119,7 @@ export default function PeopleScreen({ route }) {
           renderItem={({ item }) => (
             <List.Item
               title={item.name}
-              description={item.dob}
+              description={formatDate(item.dob)}
               titleStyle={styles.nameText}
               descriptionStyle={styles.dobText}
               style={[styles.card, styles.purpleLeftBorder]}
