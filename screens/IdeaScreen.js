@@ -1,12 +1,12 @@
 import React from 'react';
-import { StyleSheet, View, Text, Image, Button } from 'react-native';
+import { StyleSheet, View, Text, Image, Button,ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGlobalState } from '../components/GlobalContext'; // Import useGlobalState
 
 export default function IdeaScreen({ route, navigation }) {
   const { personName, personId, capturedImageData, capturedImage,ideaText } = route.params || {};
   const insets = useSafeAreaInsets();
-  const globalState = useGlobalState(); // Access the global state
+  const globalState = useGlobalState();
 
   const people = globalState.people;
 
@@ -21,23 +21,35 @@ export default function IdeaScreen({ route, navigation }) {
     });
   };
   
- // Now you can use the 'people' array to access the data you need
  const currentPerson = people.find((person) => person.id === personId);
-
- console.log(currentPerson); // Log the person data
+ console.log(currentPerson);
 
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
     <Text style={styles.title}>Idea for <Text style={styles.personName}>{personName}</Text></Text>
-    {capturedImage && (
-      <View style={{ backgroundColor: 'white' }}>
-        <Text>{ideaText}</Text>
-        <Image source={{ uri: capturedImage.uri }} style={styles.image} />
-      </View>
-    )}
     <Button title="Add Idea" onPress={navigateToAddIdea} />
-  </View>
+    
+    
+    
+    <ScrollView>
+        {currentPerson.ideas.map((idea, index) => (
+          <View key={idea.id} style={styles.ideaContainer}>
+            <Text style={styles.ideaText}>Idea {index + 1}: {idea.text}</Text>
+            <Image source={{ uri: idea.img }} style={styles.image} />
+          </View>
+        ))}
+      </ScrollView>
+
+      {capturedImage && (
+        <View style={styles.ideaContainer}>
+          <Text style={styles.ideaText}>Additional Idea Text: {ideaText}</Text>
+          <Image source={{ uri: capturedImage.uri }} style={styles.image} />
+        </View>
+      )}
+
+      <Button title="Add Idea" onPress={navigateToAddIdea} />
+    </View>
   );
 }
 
@@ -61,6 +73,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#393939',
     paddingBottom: 5,
+  }, ideaText: {
+    fontSize: 18,
+    color: '#393939',
+    paddingBottom: 10,
   },
   image:{
     width:300,
