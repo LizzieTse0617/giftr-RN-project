@@ -1,4 +1,3 @@
-// GlobalContext.js
 import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -6,13 +5,27 @@ const GlobalStateContext = createContext();
 const GlobalDispatchContext = createContext();
 
 const initialState = {
-  people: [],
+  people: [], // This holds your person data including 'ideas'
 };
 
 const globalReducer = (state, action) => {
   switch (action.type) {
     case 'SET_PEOPLE':
       return { ...state, people: action.payload };
+    case 'ADD_IDEA_TO_PERSON':
+      const { personId, ideaData } = action.payload;
+      // Find the person in the people array and add the idea to their 'ideas'
+      const updatedPeople = state.people.map((person) => {
+        if (person.id === personId) {
+          // Create a new person object with the added idea
+          return {
+            ...person,
+            ideas: [...person.ideas, ideaData],
+          };
+        }
+        return person;
+      });
+      return { ...state, people: updatedPeople };
     default:
       return state;
   }

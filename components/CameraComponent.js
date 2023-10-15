@@ -1,11 +1,12 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { Camera, CameraType } from 'expo-camera';
-import { View, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet,Dimensions } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 
 export default function CameraComponent({ onPictureTaken }) {
   const cameraRef = useRef();
   const [hasPermission, setHasPermission] = useState(false);
+  const [aspectRatio, setAspectRatio] = useState(2 / 3);
 
   useEffect(() => {
     // Request camera permissions
@@ -33,25 +34,30 @@ export default function CameraComponent({ onPictureTaken }) {
     };
 
     cameraRef.current
-      .takePictureAsync(opts)
-      .then((pic) => {
-        if (pic) {
-          onPictureTaken(pic);
-        }
-      })
-      .catch((err) => console.log(err));
-  }
+    .takePictureAsync(opts)
+    .then((pic) => {
+      if (pic) {
+        const screenWidth = Dimensions.get('window').width;
+        const imageWidth = screenWidth * 0.6;
+        const imageHeight = imageWidth * aspectRatio;
+        const data = { uri: pic.uri, width: imageWidth, height: imageHeight };
+        onPictureTaken(data); // Return the data to the callback
+      }
+    })
+    .catch((err) => console.log(err));
+}
 
   return (
     <Camera
       type={CameraType.back}
       style={{ flex: 1 }}
       ref={cameraRef}
+      ratio={'2:3'} 
     >
       {hasPermission && (
         <View style={cameraStyles.buttonContainer}>
           <Pressable onPress={takePhoto} style={cameraStyles.captureButton}>
-            <MaterialIcons name="camera-alt" size={50} color="white" />
+            <MaterialIcons name="camera-alt" size={30} color="white" />
           </Pressable>
         </View>
       )}
@@ -64,13 +70,15 @@ const cameraStyles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     position: 'absolute',
-    bottom: 20,
+    bottom: -30,
     left: 0,
     right: 0,
+
   },
   captureButton: {
     backgroundColor: 'black',
-    padding: 16,
+    padding: 20,
     borderRadius: 50,
+
   },
 });

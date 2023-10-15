@@ -20,6 +20,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flex: 1,
     margin: 10,
+
   },
   buttonText: {
     color: '#393939',

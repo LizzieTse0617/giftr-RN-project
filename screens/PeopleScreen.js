@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, FlatList ,TouchableOpacity} from 'react-native';
+import { StyleSheet, View, FlatList, TouchableOpacity } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons'; // Import the Ionicons component
+import Icon from 'react-native-vector-icons/Ionicons';
 import ModalComponent from '../components/ModalComponent';
 import { useNavigation } from '@react-navigation/native';
 import { Text, List, Button, Modal, Provider } from 'react-native-paper';
 import { useGlobalState, useGlobalDispatch } from '../components/GlobalContext';
-
 
 export default function PeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
@@ -20,7 +19,6 @@ export default function PeopleScreen({ route }) {
   const globalState = useGlobalState();
   const globalDispatch = useGlobalDispatch();
   const { people: peopleData } = globalState;
-
 
   useEffect(() => {
     const getPeopleData = async () => {
@@ -38,6 +36,7 @@ export default function PeopleScreen({ route }) {
 
     getPeopleData();
   }, []);
+
   const openModal = (personId, personName) => {
     setPersonIdToDelete(personId);
     setPersonNameToDelete(personName);
@@ -71,7 +70,7 @@ export default function PeopleScreen({ route }) {
       try {
         await AsyncStorage.setItem('peopleData', JSON.stringify(updatedPeopleData));
         console.log('Person deleted successfully');
-        setPeopleData(updatedPeopleData); // Update the state to reflect the deletion
+        globalDispatch({ type: 'SET_PEOPLE', payload: updatedPeopleData }); // Update the global state
       } catch (error) {
         console.error('Error deleting person data:', error);
         setError('Error deleting person data: ' + error.message);

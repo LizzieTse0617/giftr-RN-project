@@ -9,6 +9,10 @@ export default function AddIdeaScreen({ route, navigation }) {
   const [capturedImage, setCapturedImage] = useState(null);
 
   const onPictureTaken = (photo) => {
+    console.log('Captured Image URI:', photo.uri);
+    console.log('Captured Image Width:', photo.width);
+    console.log('Captured Image Height:', photo.height);
+    
     setCapturedImage(photo.uri);
   };
 

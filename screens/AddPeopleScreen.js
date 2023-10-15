@@ -5,9 +5,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
-import * as Crypto from 'expo-crypto';
 import { Text, TextInput} from 'react-native-paper'; 
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import generateUniqueId from '../components/generateUniqueId';
+
 export default function AddPeopleScreen({ route }) {
   const insets = useSafeAreaInsets();
   const [newPerson, setNewPerson] = useState({ name: '', dob: '' });
@@ -27,30 +28,6 @@ const retrievePeopleData = async () => {
   } catch (error) {
     console.error('Error retrieving people data:', error);
     return [];
-  }
-};
-
-
-// Function to generate a unique ID
-const generateUniqueId = async () => {
-  try {
-    // Generate a unique string (e.g., a random UUID-like string)
-    const uniqueString = `${Date.now()}-${Math.random()}`;
-    
-    // Calculate the SHA-256 hash of the unique string
-    const id = await Crypto.digestStringAsync(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      uniqueString
-    );
-
- // Create a shortened ID using the first 16 characters of the hash
- const formattedId = `${id.substring(0, 8)}-${id.substring(8, 12)}-${id.substring(12, 16)}-${id.substring(16, 20)}-${id.substring(20, 32)}`;
-  
-
-    return formattedId;
-  } catch (error) {
-    console.error('Error generating ID:', error);
-    return null;
   }
 };
 
