@@ -87,14 +87,7 @@ export default function App() {
               <Stack.Screen
                 name="IdeaScreen"
                 component={IdeaScreen}
-                options={({ navigation }) => ({
-                  title: 'Idea',
-                  headerRight: () => (
-                    <TouchableOpacity onPress={() => navigation.navigate('AddIdea')}>
-                      <Text style={styles.heading}>+ Add Idea</Text>
-                    </TouchableOpacity>
-                  ),
-                })}
+               
               />
               <Stack.Screen name="AddIdea" component={AddIdeaScreen} options={{ title: 'Add Idea' }} />
             </Stack.Navigator>

@@ -5,14 +5,15 @@ import CancelButton from '../components/CancelButton';
 import { Text, TextInput } from 'react-native-paper';
 import CameraComponent from '../components/CameraComponent';
 import generateUniqueId from '../components/generateUniqueId';
-import { useGlobalDispatch } from '../components/GlobalContext';
+import { useGlobalState, useGlobalDispatch } from '../components/GlobalContext';
 
 export default function AddIdeaScreen({ route, navigation }) {
   const { personId, personName, capturedImageData } = route.params;
   const [capturedImage, setCapturedImage] = useState(null);
   const [ideaText, setIdeaText] = useState('');
   const dispatch = useGlobalDispatch();
-
+  const people = useGlobalState().people;
+  
   const onPictureTaken = (photo) => {
     setCapturedImage(photo);
   };

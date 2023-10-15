@@ -1,10 +1,15 @@
 import React from 'react';
 import { StyleSheet, View, Text, Image, Button } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useGlobalState } from '../components/GlobalContext'; // Import useGlobalState
 
 export default function IdeaScreen({ route, navigation }) {
   const { personName, personId, capturedImageData, capturedImage,ideaText } = route.params || {};
   const insets = useSafeAreaInsets();
+  const globalState = useGlobalState(); // Access the global state
+
+  const people = globalState.people;
+
 
   const navigateToAddIdea = () => {
     navigation.navigate('AddIdea', {
@@ -15,8 +20,12 @@ export default function IdeaScreen({ route, navigation }) {
       ideaText
     });
   };
-  console.log(capturedImage,ideaText,capturedImage.uri)
-  //console.log('capturedImage URI:', capturedImage.uri);
+  
+ // Now you can use the 'people' array to access the data you need
+ const currentPerson = people.find((person) => person.id === personId);
+
+ console.log(currentPerson); // Log the person data
+
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
