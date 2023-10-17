@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Modal, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Button } from 'react-native-paper'; // Import the Button component
+import { Button } from 'react-native-paper';
 
 const ModalComponent = ({ isVisible, closeModal, title, onConfirm, onCancel }) => {
   return (

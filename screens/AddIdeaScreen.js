@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Image, StyleSheet, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import React, { useState ,useEffect} from 'react';
+import { View, Image, StyleSheet, Keyboard, KeyboardAvoidingView,Platform,TouchableWithoutFeedback } from 'react-native';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
 import { Text, TextInput } from 'react-native-paper';
@@ -18,10 +18,14 @@ export default function AddIdeaScreen({ route, navigation }) {
     setCapturedImage(photo);
   };
 
-  const onSaveButtonPress = () => {
+  const onCancelButtonPress = () => {
+    navigation.goBack(); 
+  };
+
+  const onSaveButtonPress = async() => {
+
     const newIdeaId = generateUniqueId();
 
-    // Dispatch an action to add the new idea to a person
     dispatch({
       type: 'ADD_IDEA_TO_PERSON',
       payload: {
@@ -35,7 +39,6 @@ export default function AddIdeaScreen({ route, navigation }) {
         },
       },
     });
-
     navigation.navigate('IdeaScreen', {
       personId: personId,
       personName: personName,
@@ -44,12 +47,23 @@ export default function AddIdeaScreen({ route, navigation }) {
       ideaText: ideaText,
     });
   };
+
+  const isSaveDisabled = !ideaText || !capturedImage;
+   
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
         <Text style={styles.title}>Add an idea for {personName}</Text>
         <Text style={styles.text}>Gift</Text>
-        <TextInput style={styles.input} onChangeText={text => setIdeaText(text)} />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.inputContainer}
+        >
+          <TextInput
+            style={styles.input}
+            onChangeText={(text) => setIdeaText(text)}
+          />
+        </KeyboardAvoidingView>
 
         <CameraComponent onPictureTaken={onPictureTaken} />
 
@@ -60,16 +74,18 @@ export default function AddIdeaScreen({ route, navigation }) {
         )}
 
         <View style={styles.buttonContainer}>
-          <CancelButton title="Cancel" />
-          <SaveButton title="Save" style={styles.btn} onPress={onSaveButtonPress} />
+          <CancelButton title="Cancel" onPress={onCancelButtonPress} />
+          <SaveButton
+            title="Save"
+            style={styles.btn}
+            onPress={onSaveButtonPress}
+            disabled={isSaveDisabled}
+          />
         </View>
       </View>
     </TouchableWithoutFeedback>
   );
 }
-
-// Rest of your styles...
-
 
 const styles = StyleSheet.create({
   container: {
@@ -87,6 +103,9 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     fontSize: 16,
     color: '#FFFFFF',
+  },
+  inputContainer: {
+    flex: 1,
   },
   input: {
     height: 40,

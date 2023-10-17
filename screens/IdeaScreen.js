@@ -12,25 +12,15 @@ export default function IdeaScreen({ route, navigation }) {
   const globalDispatch = useGlobalDispatch();
   const people = globalState.people;
 
-  console.log(people)
   const [modalVisible, setModalVisible] = useState(false);
   const [deletingIdeaId, setDeletingIdeaId] = useState(null);
   const [currentPerson, setCurrentPerson] = useState(null);
-  const [giftItems, setGiftItems] = useState([]); // Initialize an array for gift items
+ 
 
   useEffect(() => {
-    // Find the person data using personId and set it to currentPerson
     const person = people.find((person) => person.id === personId);
     setCurrentPerson(person);
-
-    // Load gift items from AsyncStorage
-    loadGiftItemsFromAsyncStorage();
   }, [personId, people]);
-
-  useEffect(() => {
-    // When giftItems change, save them to AsyncStorage
-    saveGiftItemsToAsyncStorage();
-  }, [giftItems]);
 
 
   const showDeleteModal = (ideaId) => {
@@ -51,39 +41,38 @@ export default function IdeaScreen({ route, navigation }) {
       capturedImage,
       ideaText,
       personData: currentPerson,
-      giftItems: giftItems,
     });
   };
   
- //const currentPerson = people.find((person) => person.id === personId);
- console.log(currentPerson);
-
-
- const deleteIdea = (ideaId) => {
-  const updatedGiftItems = giftItems.filter((item) => item.id !== ideaId);
-  setGiftItems(updatedGiftItems); // Update gift items in state
-  hideDeleteModal();
-};
-
-const loadGiftItemsFromAsyncStorage = async () => {
-  try {
-    const storedGiftItems = await AsyncStorage.getItem(`giftItems_${personId}`);
-    if (storedGiftItems) {
-      const parsedGiftItems = JSON.parse(storedGiftItems);
-      setGiftItems(parsedGiftItems);
+  const deleteIdea = (ideaId) => {
+    if (currentPerson) {
+      const updatedPerson = { ...currentPerson };
+      updatedPerson.ideas = updatedPerson.ideas.filter((item) => item.id !== ideaId);
+      setCurrentPerson(updatedPerson);
+      savePersonToAsyncStorage(updatedPerson);
     }
-  } catch (error) {
-    console.error('Error loading gift items from AsyncStorage:', error);
-  }
-};
+    hideDeleteModal();
+  };
 
-const saveGiftItemsToAsyncStorage = async () => {
-  try {
-    await AsyncStorage.setItem(`giftItems_${personId}`, JSON.stringify(giftItems));
-  } catch (error) {
-    console.error('Error saving gift items to AsyncStorage:', error);
-  }
-};
+  const loadPersonFromAsyncStorage = async (personId) => {
+    try {
+      const storedPerson = await AsyncStorage.getItem(`person_${personId}`);
+      if (storedPerson) {
+        const parsedPerson = JSON.parse(storedPerson);
+        setCurrentPerson(parsedPerson);
+      }
+    } catch (error) {
+      console.error('Error loading person from AsyncStorage:', error);
+    }
+  };
+
+  const savePersonToAsyncStorage = async (person) => {
+    try {
+      await AsyncStorage.setItem(`person_${person.id}`, JSON.stringify(person));
+    } catch (error) {
+      console.error('Error saving person to AsyncStorage:', error);
+    }
+  };
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -91,14 +80,22 @@ const saveGiftItemsToAsyncStorage = async () => {
     <Button title="Add Idea" onPress={navigateToAddIdea} />
 
     <ScrollView>
-      {currentPerson && currentPerson.ideas.map((idea, index) => (
-        <View key={idea.id} style={styles.ideaContainer}>
-          <Text style={styles.ideaText}>Idea {index + 1}: {idea.text}</Text>
-          <Image source={{ uri: idea.img }} style={styles.image} />
-          <Button title="Delete" onPress={() => showDeleteModal(idea.id)} color="red" />
-        </View>
-      ))}
-    </ScrollView>
+        {currentPerson && currentPerson.ideas.length > 0 ? (
+          currentPerson.ideas.map((idea, index) => (
+            <View key={idea.id} style={styles.ideaContainer}>
+              <Text style={styles.ideaText}> {idea.text}</Text>
+              <Image source={{ uri: idea.img }} style={styles.image} />
+              <Button
+                title="Delete"
+                onPress={() => showDeleteModal(idea.id)}
+                color="red"
+              />
+            </View>
+          ))
+        ) : (
+          <Text style={styles.displayMessage}>Add new idea</Text>
+        )}
+      </ScrollView>
 
     <ModalComponent
       isVisible={modalVisible}
@@ -139,5 +136,10 @@ const styles = StyleSheet.create({
   image:{
     width:300,
     height:200
-  }
+  },
+  displayMessage: {
+    color: '#393939',
+    fontSize: 16,
+    paddingTop:40,
+  },
 });
