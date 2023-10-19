@@ -16,12 +16,15 @@ export default function PeopleScreen({ route }) {
   const [personNameToDelete, setPersonNameToDelete] = useState('');
   const navigation = useNavigation();
 
+  const { updatedPeopleData } = route.params;
+
+
   const globalState = useGlobalState();
   const globalDispatch = useGlobalDispatch();
   const { people: peopleData } = globalState;
-
+ 
   useEffect(() => {
-    const getPeopleData = async () => {
+    async function fetchPeopleData() {
       try {
         const storedData = await AsyncStorage.getItem('peopleData');
         if (storedData !== null) {
@@ -32,11 +35,16 @@ export default function PeopleScreen({ route }) {
         console.error('Error retrieving people data:', error);
         setError('Error retrieving people data: ' + error.message);
       }
-    };
+    }
+  
+    if (updatedPeopleData) {
+      globalDispatch({ type: 'SET_PEOPLE', payload: updatedPeopleData });
+    } else {
+      fetchPeopleData();
+    }
+  }, [updatedPeopleData]); 
 
-    getPeopleData();
-  }, []);
-
+  
   const openModal = (personId, personName) => {
     setPersonIdToDelete(personId);
     setPersonNameToDelete(personName);
@@ -57,33 +65,26 @@ export default function PeopleScreen({ route }) {
   };
 
   const handleDelete = async (personId) => {
-    // Find the index of the person to delete
     const indexToDelete = peopleData.findIndex((person) => person.id === personId);
-
     if (indexToDelete !== -1) {
-      // Create a copy of the peopleData array
       const updatedPeopleData = [...peopleData];
-      // Remove the person from the array
       updatedPeopleData.splice(indexToDelete, 1);
 
-      // Update AsyncStorage with the modified array
       try {
         await AsyncStorage.setItem('peopleData', JSON.stringify(updatedPeopleData));
-        console.log('Person deleted successfully');
-        globalDispatch({ type: 'SET_PEOPLE', payload: updatedPeopleData }); // Update the global state
+        globalDispatch({ type: 'SET_PEOPLE', payload: updatedPeopleData });
       } catch (error) {
-        console.error('Error deleting person data:', error);
-        setError('Error deleting person data: ' + error.message);
+        console.error('Error saving people data to AsyncStorage:', error);
       }
     }
   };
+
   const navigateToIdeaScreen = (personId, personName) => {
     navigation.navigate('IdeaScreen', {
       personId,
       personName,
     });
   };
-
 
   function formatDate(inputDate) {
     const dateParts = inputDate.split('/'); 
@@ -100,57 +101,58 @@ export default function PeopleScreen({ route }) {
     const formattedDate = day + ' ' + formattedMonth;
     return formattedDate;
   }
-
+  const sortedPeopleData = peopleData.slice().sort((a, b) => {
+    const dateA = new Date(a.dob);
+    const dateB = new Date(b.dob);
+    return dateA - dateB;
+  });
 
   return (
-    <Provider>
+<Provider>
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <Text style={styles.title}>Gift Manager</Text>
-        <Text style={styles.text}>An app to make gift list to your family & friends!</Text>
+        <Text style={styles.text}>An app to make gift lists for your family & friends!</Text>
         {error ? (
           <Text style={styles.error}>{error}</Text>
         ) : peopleData.length === 0 ? (
           <Text style={styles.displayMessage}>No people saved yet</Text>
         ) : (
           <FlatList
-          style={styles.cardContainer}
-          data={peopleData}
-          renderItem={({ item }) => (
-            <List.Item
-              title={item.name}
-              description={formatDate(item.dob)}
-              titleStyle={styles.nameText}
-              descriptionStyle={styles.dobText}
-              style={[styles.card, styles.purpleLeftBorder]}
-              right={() => (
-                <View style={styles.iconContainer}>
-                      {/* Wrap the delete icon with the round box */}
-                      <View style={styles.roundBoxDelete}>
-                    <Icon
-                      name="ios-trash"
-                      size={20}
-                      color="white" // Customize the icon color
-                      onPress={() => openModal(item.id, item.name)}
-                    />
+            style={styles.cardContainer}
+            data={sortedPeopleData}
+            renderItem={({ item }) => (
+              <List.Item
+                title={item.name}
+                description={formatDate(item.dob)}
+                titleStyle={styles.nameText}
+                descriptionStyle={styles.dobText}
+                style={[styles.card, styles.purpleLeftBorder]}
+                right={() => (
+                  <View style={styles.iconContainer}>
+           
+                    <View style={styles.roundBoxDelete}>
+                      <Icon
+                        name="ios-trash"
+                        size={20}
+                        color="white" 
+                        onPress={() => openModal(item.id, item.name)}
+                      />
+                    </View>
+   
+                    <View style={styles.roundBox}>
+                      <Icon
+                        name="gift-outline"
+                        size={20}
+                        color="white" 
+                        onPress={() => navigateToIdeaScreen(item.id, item.name)}
+                      />
+                    </View>
                   </View>
-                  {/* Wrap the gift icon with the round box */}
-                  <View style={styles.roundBox}>
-                    <Icon
-                      name="gift-outline"
-                      size={20}
-                      color="white" // Customize the icon color
-                      onPress={() => navigateToIdeaScreen(item.id, item.name)}
-                    />
-                  </View>
-        
-              
-                </View>
-              )}
-            />
-          )}
-          keyExtractor={(item) => item.id}
-        />
-        
+                )}
+              />
+            )}
+            keyExtractor={(item) => item.id}
+          />
         )}
         <ModalComponent
           isVisible={isModalVisible}

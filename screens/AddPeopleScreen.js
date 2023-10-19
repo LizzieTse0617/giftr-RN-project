@@ -16,6 +16,7 @@ export default function AddPeopleScreen({ route }) {
   const navigation = useNavigation();
 
   const [selectedDate, setSelectedDate] = useState('');
+  const isSaveButtonDisabled = !(newPerson.name && selectedDate);
 
 // Retrieve existing people data from AsyncStorage
 const retrievePeopleData = async () => {
@@ -32,9 +33,8 @@ const retrievePeopleData = async () => {
 };
 
 const handleAddPerson = async () => {
-  // Validate and add the new person to the list
+
   if (newPerson.name.trim() && selectedDate) {
-    // Generate a unique ID for the new person
     generateUniqueId().then((id) => {
       if (id) {
         const person = {
@@ -44,22 +44,19 @@ const handleAddPerson = async () => {
           dob: selectedDate,
         };
 
-        // Retrieve existing people data
         retrievePeopleData()
           .then((existingPeopleData) => {
             existingPeopleData.push(person);
 
             // Save the updated array back to AsyncStorage
             AsyncStorage.setItem('peopleData', JSON.stringify(existingPeopleData))
-              .then(() => {
-                console.log('Person added successfully');
-                navigation.navigate('People', { peopleData: existingPeopleData });
-                updatePeopleList(person);
-                console.log(person)
-                console.log(existingPeopleData)
-                setNewPerson({ name: '', dob: '' });
-                setSelectedDate('');
-              })
+            .then(() => {
+             
+              updatePeopleList(person);
+              navigation.navigate('People',{updatedPeopleData: existingPeopleData});
+              setNewPerson({ name: '', dob: '' });
+              setSelectedDate('');
+            })
               .catch((error) => {
                 console.error('Error saving person data:', error);
               });
@@ -73,6 +70,7 @@ const handleAddPerson = async () => {
     });
   }
 };
+
 
  const handleCancel = () => {
   navigation.goBack();
@@ -98,7 +96,7 @@ const handleAddPerson = async () => {
     <Text style={styles.text}>Date of Birth</Text>
     <DatePicker
       style={styles.datePicker}
-      onSelectedChange={(date) => setSelectedDate(date)}
+      onDateChange={(date) => setSelectedDate(date)}
       selected={selectedDate}
       mode="calendar"
       minuteInterval={30}
@@ -113,7 +111,7 @@ const handleAddPerson = async () => {
 
     <View style={styles.buttonContainer}>
       <CancelButton title="Cancel" onPress={handleCancel} />
-      <SaveButton title="Save" onPress={handleAddPerson} style={styles.btn} />
+      <SaveButton title="Save" onPress={handleAddPerson} style={styles.btn} disabled={isSaveButtonDisabled} />
     </View>
   </KeyboardAvoidingView>
 

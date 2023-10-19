@@ -6,6 +6,7 @@ import { Text, TextInput } from 'react-native-paper';
 import CameraComponent from '../components/CameraComponent';
 import generateUniqueId from '../components/generateUniqueId';
 import { useGlobalState, useGlobalDispatch } from '../components/GlobalContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AddIdeaScreen({ route, navigation }) {
   const { personId, personName, capturedImageData } = route.params;
@@ -17,7 +18,13 @@ export default function AddIdeaScreen({ route, navigation }) {
   const onPictureTaken = (photo) => {
     setCapturedImage(photo);
   };
-
+  const savePersonToAsyncStorage = async (personData) => {
+    try {
+      await AsyncStorage.setItem(`person_${personData.personId}`, JSON.stringify(personData));
+    } catch (error) {
+      console.error('Error saving person to AsyncStorage:', error);
+    }
+  };
   const onCancelButtonPress = () => {
     navigation.goBack(); 
   };
@@ -39,6 +46,8 @@ export default function AddIdeaScreen({ route, navigation }) {
         },
       },
     });
+    savePersonToAsyncStorage({ personId, ideaText, capturedImage });
+
     navigation.navigate('IdeaScreen', {
       personId: personId,
       personName: personName,
@@ -48,7 +57,7 @@ export default function AddIdeaScreen({ route, navigation }) {
     });
   };
 
-  const isSaveDisabled = !ideaText || !capturedImage;
+  const isSaveDisabled = !ideaText.trim() || !capturedImage;
    
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>

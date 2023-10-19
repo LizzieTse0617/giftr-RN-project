@@ -1,13 +1,15 @@
 import * as Crypto from 'expo-crypto';
 
 const generateUniqueId = () => {
-  try {
-    const id = Crypto.randomUUID();
-    return id;
-  } catch (error) {
-    console.error('Error generating ID:', error);
-    return null;
-  }
+  return new Promise(async (resolve, reject) => {
+    try {
+      const id = await Crypto.randomUUID();
+      resolve(id);
+    } catch (error) {
+      console.error('Error generating ID:', error);
+      reject(error);
+    }
+  });
 };
 
 export default generateUniqueId;
