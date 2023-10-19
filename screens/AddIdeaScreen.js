@@ -1,5 +1,5 @@
 import React, { useState ,useEffect} from 'react';
-import { View, Image, StyleSheet, Keyboard, KeyboardAvoidingView,Platform,TouchableWithoutFeedback } from 'react-native';
+import { View, Image, StyleSheet, Keyboard,ScrollView, KeyboardAvoidingView,Platform,TouchableWithoutFeedback } from 'react-native';
 import SaveButton from '../components/SaveButton';
 import CancelButton from '../components/CancelButton';
 import { Text, TextInput } from 'react-native-paper';
@@ -15,9 +15,26 @@ export default function AddIdeaScreen({ route, navigation }) {
   const dispatch = useGlobalDispatch();
   const people = useGlobalState().people;
   
+  const [cameraKey, setCameraKey] = useState(generateUniqueId()); 
+  const [imageKey, setImageKey] = useState(generateUniqueId()); 
+
+
   const onPictureTaken = (photo) => {
     setCapturedImage(photo);
   };
+
+  useEffect(() => {
+    // Generate a promise to resolve the cameraKey
+    const generateCameraKey = generateUniqueId();
+    const generateImageKey = generateUniqueId();
+  
+    // Wait for both promises to resolve using Promise.all
+    Promise.all([generateCameraKey, generateImageKey]).then(([camera, image]) => {
+      setCameraKey(camera);
+      setImageKey(image);
+    });
+  }, []);
+  
   const savePersonToAsyncStorage = async (personData) => {
     try {
       await AsyncStorage.setItem(`person_${personData.personId}`, JSON.stringify(personData));
@@ -60,28 +77,22 @@ export default function AddIdeaScreen({ route, navigation }) {
   const isSaveDisabled = !ideaText.trim() || !capturedImage;
    
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <View style={styles.container}>
+<TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Add an idea for {personName}</Text>
         <Text style={styles.text}>Gift</Text>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.inputContainer}
-        >
-          <TextInput
-            style={styles.input}
-            onChangeText={(text) => setIdeaText(text)}
-          />
-        </KeyboardAvoidingView>
-
-        <CameraComponent onPictureTaken={onPictureTaken} />
-
+        <TextInput
+          style={styles.input}
+          onChangeText={(text) => setIdeaText(text)}
+        />
+        <View key={cameraKey} style={styles.cameraContainer}>
+          <CameraComponent onPictureTaken={onPictureTaken} />
+        </View>
         {capturedImage && (
-          <View style={styles.imagePreviewContainer}>
+          <View key={imageKey} style={styles.imagePreviewContainer}>
             <Image source={{ uri: capturedImage.uri }} style={styles.imagePreview} />
           </View>
         )}
-
         <View style={styles.buttonContainer}>
           <CancelButton title="Cancel" onPress={onCancelButtonPress} />
           <SaveButton
@@ -91,7 +102,7 @@ export default function AddIdeaScreen({ route, navigation }) {
             disabled={isSaveDisabled}
           />
         </View>
-      </View>
+      </ScrollView>
     </TouchableWithoutFeedback>
   );
 }
@@ -102,6 +113,7 @@ const styles = StyleSheet.create({
     paddingTop: 30,
     paddingHorizontal: 20,
     backgroundColor: '#393939',
+
   },
   title: {
     fontSize: 25,
@@ -124,10 +136,12 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   cameraContainer: {
-    flex: 1,
-    width: '100%',
-    aspectRatio: 1,
+    flex: 0,
+    aspectRatio: 3 / 2, 
+    alignSelf: 'center', 
+    width:'100%'
   },
+  
   camera: {
     flex: 1,
   },
@@ -137,12 +151,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   imagePreview: {
-    width: 200,
-    height: 200,
+    width: '100%',
+    aspectRatio: 3 / 2, 
   },
   buttonContainer: {
-    flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-end', 
+    flexDirection: 'row',
   },
   captureButton: {
     backgroundColor: 'transparent',

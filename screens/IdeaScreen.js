@@ -90,36 +90,35 @@ export default function IdeaScreen({ route, navigation }) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.title}>Idea for <Text style={styles.personName}>{personName}</Text></Text>
       <Button title="Add Idea" onPress={navigateToAddIdea} />
-
-      <FlatList
-  data={currentPerson ? currentPerson.ideas : []}
-  keyExtractor={(item) => item.id.toString()}
-
-  renderItem={({ item }) => (
-    <View style={styles.ideaContainer}>
-      <Text style={styles.ideaText}>{item.text}</Text>
-      <TouchableOpacity onPress={() => openFullSizeModal(item.img)}>
-        <Image source={{ uri: item.img }} style={styles.image} />
-      </TouchableOpacity>
-      <Button
-        title="Delete"
-        onPress={() => showDeleteModal(item.id)}
-        color="red"
+  
+      {currentPerson && currentPerson.ideas && currentPerson.ideas.length > 0 ? (
+        <FlatList
+          data={currentPerson.ideas}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.ideaContainer}>
+              <Text style={styles.ideaText}>{item.text}</Text>
+              <TouchableOpacity onPress={() => openFullSizeModal(item.img)}>
+                <Image source={{ uri: item.img }} style={styles.image} />
+              </TouchableOpacity>
+              <Button
+                title="Delete"
+                onPress={() => showDeleteModal(item.id)}
+                color="red"
+              />
+            </View>
+          )}
+        />
+      ) : (
+        <Text style={styles.displayMessage}>Add new idea to your family & friends now!</Text>
+      )}
+  
+      <FullSizeModalComponent
+        isVisible={fullSizeModalVisible}
+        closeModal={() => setFullSizeModalVisible(false)}
+        imageUri={selectedImageUri}
       />
-    </View>
-  )}
-  ListEmptyComponent={() => (
-    <Text style={styles.displayMessage}>Add new idea</Text>
-  )}
-/>
-
-<FullSizeModalComponent
-  isVisible={fullSizeModalVisible}
-  closeModal={() => setFullSizeModalVisible(false)}
-  imageUri={selectedImageUri}
-/>
-
-
+  
       <ModalComponent
         isVisible={modalVisible}
         closeModal={hideDeleteModal}
@@ -129,6 +128,7 @@ export default function IdeaScreen({ route, navigation }) {
       />
     </View>
   );
+  
 }
 
 const styles = StyleSheet.create({

@@ -33,7 +33,6 @@ const retrievePeopleData = async () => {
 };
 
 const handleAddPerson = async () => {
-
   if (newPerson.name.trim() && selectedDate) {
     generateUniqueId().then((id) => {
       if (id) {
@@ -48,15 +47,15 @@ const handleAddPerson = async () => {
           .then((existingPeopleData) => {
             existingPeopleData.push(person);
 
-            // Save the updated array back to AsyncStorage
             AsyncStorage.setItem('peopleData', JSON.stringify(existingPeopleData))
-            .then(() => {
-             
-              updatePeopleList(person);
-              navigation.navigate('People',{updatedPeopleData: existingPeopleData});
-              setNewPerson({ name: '', dob: '' });
-              setSelectedDate('');
-            })
+              .then(() => {
+                // You can call setOptions to pass data/callbacks to the previous screen
+                navigation.setOptions({
+                  params: { updatePeopleList: () => {} }, // Update with your actual callback
+                });
+
+                navigation.goBack(); 
+              })
               .catch((error) => {
                 console.error('Error saving person data:', error);
               });
