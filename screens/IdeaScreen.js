@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet,FlatList, View, Image, Button, ScrollView } from 'react-native';
+import { StyleSheet,FlatList, View, Image, Button, TouchableOpacity,ScrollView } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useGlobalState, useGlobalDispatch } from '../components/GlobalContext';
 import ModalComponent from '../components/ModalComponent';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Text } from 'react-native-paper';
+import FullSizeModalComponent from '../components/FullSizeModalComponent';
 
 export default function IdeaScreen({ route, navigation }) {
   const { personName, personId, capturedImageData, capturedImage, ideaText } =
@@ -13,7 +14,9 @@ export default function IdeaScreen({ route, navigation }) {
   const globalState = useGlobalState();
   const globalDispatch = useGlobalDispatch();
   const people = globalState.people;
-
+  const [fullSizeModalVisible, setFullSizeModalVisible] = useState(false);
+  const [selectedImageUri, setSelectedImageUri] = useState(null);
+  
   const [modalVisible, setModalVisible] = useState(false);
   const [deletingIdeaId, setDeletingIdeaId] = useState(null);
   const [currentPerson, setCurrentPerson] = useState(null);
@@ -56,6 +59,12 @@ export default function IdeaScreen({ route, navigation }) {
     }
   };
 
+  const openFullSizeModal = (imageUri) => {
+    setSelectedImageUri(imageUri);
+    setFullSizeModalVisible(true);
+  };
+  
+
   const showDeleteModal = (ideaId) => {
     setDeletingIdeaId(ideaId);
     setModalVisible(true);
@@ -85,10 +94,13 @@ export default function IdeaScreen({ route, navigation }) {
       <FlatList
   data={currentPerson ? currentPerson.ideas : []}
   keyExtractor={(item) => item.id.toString()}
+
   renderItem={({ item }) => (
     <View style={styles.ideaContainer}>
       <Text style={styles.ideaText}>{item.text}</Text>
-      <Image source={{ uri: item.img }} style={styles.image} />
+      <TouchableOpacity onPress={() => openFullSizeModal(item.img)}>
+        <Image source={{ uri: item.img }} style={styles.image} />
+      </TouchableOpacity>
       <Button
         title="Delete"
         onPress={() => showDeleteModal(item.id)}
@@ -99,6 +111,12 @@ export default function IdeaScreen({ route, navigation }) {
   ListEmptyComponent={() => (
     <Text style={styles.displayMessage}>Add new idea</Text>
   )}
+/>
+
+<FullSizeModalComponent
+  isVisible={fullSizeModalVisible}
+  closeModal={() => setFullSizeModalVisible(false)}
+  imageUri={selectedImageUri}
 />
 
 
