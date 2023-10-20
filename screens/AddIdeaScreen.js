@@ -10,6 +10,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function AddIdeaScreen({ route, navigation }) {
   const { personId, personName, capturedImageData } = route.params;
+  
   const [capturedImage, setCapturedImage] = useState(null);
   const [ideaText, setIdeaText] = useState('');
   const dispatch = useGlobalDispatch();
@@ -24,15 +25,15 @@ export default function AddIdeaScreen({ route, navigation }) {
   };
 
   useEffect(() => {
-    // Generate a promise to resolve the cameraKey
-    const generateCameraKey = generateUniqueId();
-    const generateImageKey = generateUniqueId();
-  
-    // Wait for both promises to resolve using Promise.all
-    Promise.all([generateCameraKey, generateImageKey]).then(([camera, image]) => {
-      setCameraKey(camera);
-      setImageKey(image);
-    });
+    const generateKeys = async () => {
+      const [cameraKey, imageKey] = await Promise.all([
+        generateUniqueId(),
+        generateUniqueId(),
+      ]);
+      setCameraKey(cameraKey);
+      setImageKey(imageKey);
+    };
+    generateKeys();
   }, []);
   
   const savePersonToAsyncStorage = async (personData) => {
